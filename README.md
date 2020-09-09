@@ -21,14 +21,18 @@ Step 2: Modify your snowpack config
 ```js
 module.exports = {
   "extends": "@snowpack/app-scripts-react",
-  "scripts": {
-    "build:js,jsx,ts,tsx": 'snowpack-plugin-import-map'
-  },
   "plugins": [
-    ['snowpack-plugin-import-map', {
-      react: 'https://cdn.pika.dev/react@^16.13.1',
-      'react-dom': 'https://cdn.pika.dev/react-dom@^16.13.1',
-    }]]
+    ['snowpack-plugin-import-map', 
+      {
+        dev: true, // if true, import-map transforms imports in development mode too. default: false.
+        extensions: ['.js', '.jsx','.tsx', '.ts'], // supported extensions. default: ['.js', '.jsx','.tsx', '.ts']
+        imports: { // map of packages.
+          react: 'https://cdn.pika.dev/react@^16.13.1',
+          'react-dom': 'https://cdn.pika.dev/react-dom@^16.13.1',
+        },
+      },
+    ],
+  ],
 }
 ```
 
