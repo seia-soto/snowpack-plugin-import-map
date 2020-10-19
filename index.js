@@ -36,7 +36,7 @@ module.exports = function (snowpackConfig, pluginOptions) {
   // Check if pluginOptions.getCdnURL is function
   let buildCdnURL = getSkypackCdnURL
 
-  if (typeof pluginOptions.getCdnURL === 'function') {
+  if (typeof pluginOptions.getCdnURL === "function") {
     buildCdnURL = pluginOptions.getCdnURL
   }
 
