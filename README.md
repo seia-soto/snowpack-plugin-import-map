@@ -36,6 +36,8 @@ module.exports = {
         dev: true,
         // supported extensions. default: ['.js', '.jsx','.tsx', '.ts']
         extensions: [".js", ".jsx", ".tsx", ".ts"],
+        // use custom cdn URL builder instead of Skypack.
+        getCdnURL: (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? ".min" : ""}.js`
       },
     ],
   ],

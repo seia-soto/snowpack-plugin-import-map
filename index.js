@@ -33,6 +33,13 @@ module.exports = function (snowpackConfig, pluginOptions) {
   // Store package versions so the version is only resolved once
   const cache = new Map();
 
+  // Check if pluginOptions.getCdnURL is function
+  let buildCdnURL = getSkypackCdnURL
+
+  if (typeof pluginOptions.getCdnURL === "function") {
+    buildCdnURL = pluginOptions.getCdnURL
+  }
+
   return {
     name: "snowpack-plugin-import-map",
     async transform({ contents, isDev, fileExt }) {
@@ -40,7 +47,7 @@ module.exports = function (snowpackConfig, pluginOptions) {
         contents = contents.replace(
           esmImportRegex,
           (_, before, source, after) => {
-            const newSource = rewriteImport(source, imports, cache, isDev);
+            const newSource = rewriteImport(source, imports, cache, isDev, buildCdnURL);
             return `${before}${newSource}${after}`;
           }
         );
@@ -50,7 +57,7 @@ module.exports = function (snowpackConfig, pluginOptions) {
   };
 };
 
-function rewriteImport(source, imports, cache, isDev) {
+function rewriteImport(source, imports, cache, isDev, buildCdnURL) {
   if (imports.hasOwnProperty(source)) {
     if (typeof imports[source] === "string") {
       // If the import option is a string, rewrite the import to be the string value
@@ -63,18 +70,25 @@ function rewriteImport(source, imports, cache, isDev) {
         return cached;
       }
 
-      let version = getVersionForPackage(source);
-      if (version) {
-        version = `@${version}`;
-      }
-      const cdnUrl = `https://cdn.skypack.dev/${source}${version}${
-        isDev ? "" : "?min"
-      }`;
+      const version = getVersionForPackage(source);
+      const cdnUrl = buildCdnURL(source, version, isDev);
+
       cache.set(source, cdnUrl);
+
       return cdnUrl;
     }
   }
   return source;
+}
+
+function getSkypackCdnURL(source, version, isDev) {
+  if (version) {
+    version = `@${version}`;
+  }
+
+  return `https://cdn.skypack.dev/${source}${version}${
+    isDev ? "" : "?min"
+  }`;
 }
 
 function getVersionForPackage(source) {

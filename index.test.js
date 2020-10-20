@@ -117,6 +117,24 @@ test("runs in development mode with dev option set", async () => {
   expect(result2).toEqual(expected({ min: false }));
 });
 
+test("executes custom getCdnURL function properly", async () => {
+  const getCdnURL = (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, "")}/umd/${source}.production${isDev ? ".min" : ""}.js`
+  const expectedCustom = ({
+    min = true,
+    isNumber = getCdnURL("is-number"), isNumberVersion, !min),
+  } = {}) => `
+import isNumber from "${isNumber}";
+import React from "react";
+console.log(isNumber("5"));
+`;
+  const instance = plugin({}, { imports: { "is-number": true }, getCdnURL })
+  const result = await instance.transform({
+    contents,
+    fileExt
+  })
+  expect(result).toEqual(expectedCustom())
+})
+
 test("regex", () => {
   const shouldPass = `
     import defaultExport from "module-name";
