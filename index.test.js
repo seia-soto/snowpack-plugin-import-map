@@ -118,10 +118,11 @@ test("runs in development mode with dev option set", async () => {
 });
 
 test("executes custom getCdnURL function properly", async () => {
+  const min = true
   const getCdnURL = (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, "")}/umd/${source}.production${isDev ? ".min" : ""}.js`
   const expectedCustom = ({
-    min = true,
-    isNumber = getCdnURL("is-number"), isNumberVersion, !min),
+    min,
+    isNumber = getCdnURL("is-number", isNumberVersion, min),
   } = {}) => `
 import isNumber from "${isNumber}";
 import React from "react";
@@ -157,6 +158,20 @@ test("regex", () => {
     esmImportRegex.lastIndex = 0;
     expect(match).toBeTruthy();
     expect(match[2]).toBe("module-name");
+  }
+
+  const shouldPassSubPath = `
+    import defaultExport from "module-name/from/unexpected/path";
+  `
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  for (const line of shouldPassSubPath) {
+    const match = esmImportRegex.exec(line);
+    esmImportRegex.lastIndex = 0;
+    expect(match).toBeTruthy();
+    expect(match[2]).toBe("module-name/from/unexpected/path");
   }
 
   const shouldFail = `

@@ -37,7 +37,9 @@ module.exports = {
         // supported extensions. default: ['.js', '.jsx','.tsx', '.ts']
         extensions: [".js", ".jsx", ".tsx", ".ts"],
         // use custom cdn URL builder instead of Skypack.
-        getCdnURL: (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? ".min" : ""}.js`
+        getCdnURL: (source, version, isDev) => {
+          return `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? ".min" : ""}.js`
+        }
       },
     ],
   ],
@@ -47,6 +49,9 @@ module.exports = {
 > Note: we don't recommend using this plugin for mapping one package name to another.
 > For that, Snowpack has [import aliases](https://www.snowpack.dev/#import-aliases)
 > built in.
+
+> Note: if you use custom cdn URL builder, some CDN providers may not handle
+> your package, so you must check the existence of the package yourself.
 
 **Step 2:** `npx snowpack build` or `npx snowpack dev`
 
