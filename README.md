@@ -2,6 +2,8 @@
 
 A snowpack plugin that maps your imports to Skypack or other sources.
 
+[![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
+
 ## Installation
 
 ```bash
