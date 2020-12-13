@@ -8,18 +8,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhoukekestar/snowpack-plugin-import-map.git"
+    "url": "git+https://github.com/Seia-Soto/snowpack-plugin-import-map.git"
   },
-  "keywords": [],
+  "keywords": [
+    "snowpack",
+    "snowpack-plugin"
+  ],
   "authors": [
     "zhoukekestar@163.com",
-    "joshwilsonvu@gmail.com"
+    "joshwilsonvu@gmail.com",
+    "seia@outlook.kr"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zhoukekestar/snowpack-plugin-import-map/issues"
+    "url": "https://github.com/Seia-Soto/snowpack-plugin-import-map/issues"
   },
-  "homepage": "https://github.com/zhoukekestar/snowpack-plugin-import-map#readme",
+  "homepage": "https://github.com/Seia-Soto/snowpack-plugin-import-map#readme",
   "dependencies": {
     "is-number": "^7.0.0"
   },
