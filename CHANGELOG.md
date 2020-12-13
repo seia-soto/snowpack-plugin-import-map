@@ -21,3 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved speed by replacing full Babel passes with a sophisticated regex; handles static and dynamic imports.
 - README.md changes.
+
+## [1.1.2] - 2020-12-13
+
+### Added
+
+- Use eslint-standard as JavaScript linter and imported jest as eslint plugin for test code.
+
+### Changed
+
+- Improved esmImportRegex.js for some missed cases.
+  For example, the expression didn't catch package name which has two or more slashes from import statement.
