@@ -147,6 +147,9 @@ test('regex', () => {
     import defaultExport, * as name from "module-name"
     import "module-name"
     var promise = import("module-name")
+    import defaultExport from "module-name/from/unexpected/path"
+    import defaultExport from "module-name/from/unexpected/path.js"
+    import "module-name.css"
   `
     .split('\n')
     .map((s) => s.trim())
@@ -156,31 +159,25 @@ test('regex', () => {
     const match = esmImportRegex.exec(line)
     esmImportRegex.lastIndex = 0
     expect(match).toBeTruthy()
-    expect(match[2]).toBe('module-name')
-  }
-
-  const shouldPassSubPath = `
-    import defaultExport from "module-name/from/unexpected/path"
-  `
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean)
-
-  for (const line of shouldPassSubPath) {
-    const match = esmImportRegex.exec(line)
-    esmImportRegex.lastIndex = 0
-    expect(match).toBeTruthy()
-    expect(match[2]).toBe('module-name/from/unexpected/path')
+    expect(['module-name', 'module-name/from/unexpected/path', 'module-name/from/unexpected/path.js', 'module-name.css']).toContain(match[2])
   }
 
   const shouldFail = `
     import
     import from "module-name"
     from "module-name"
+    "module-name"
+    import from
     import "./module-name"
-    import "module-name.js"
-    import { foo } from "module-name/path/to/un-exported/file.js"
+    import "../module-name"
+    import "../../module-name"
+    import "./module-name.js"
+    import "../module-name.js"
+    import "../../module-name.js"
+    import "@author/@author"
+    import , from "module-name"
     var promise = import("./module-name")
+    import ""
   `
     .split('\n')
     .map((s) => s.trim())
