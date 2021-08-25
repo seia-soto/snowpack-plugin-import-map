@@ -2,7 +2,7 @@
   "name": "snowpack-plugin-import-map",
   "version": "1.1.4",
   "description": "snowpack-plugin-import-map",
-  "main": "index.js",
+  "main": "built/index.js",
   "scripts": {
     "test": "jest",
     "lint": "eslint ./*.js"
