@@ -17,35 +17,35 @@ yarn add --dev snowpack-plugin-import-map
 
 ```js
 module.exports = {
-  extends: "@snowpack/app-scripts-react",
+  extends: '@snowpack/app-scripts-react',
   plugins: [
     [
-      "snowpack-plugin-import-map",
+      'snowpack-plugin-import-map',
       {
         // map of packages to imports (required)
         imports: {
           // import the currently installed version of react-dom from cdn.skypack.dev
-          "react-dom": true,
+          'react-dom': true,
           // specify the exact URL to load the dependency from
-          react: "https://cdn.skypack.dev/react@^16.13.1",
+          react: 'https://cdn.skypack.dev/react@^16.13.1',
 
           // Or, import all top-level dependencies from cdn.skypack.dev
-          "*": true,
+          '*': true,
           // (with one exception)
-          "a-package": false,
+          'a-package': false
         },
         // if true, import-map transforms imports in development mode too. default: false.
         dev: true,
         // supported extensions. default: ['.js', '.jsx','.tsx', '.ts']
-        extensions: [".js", ".jsx", ".tsx", ".ts"],
+        extensions: ['.js', '.jsx','.tsx', '.ts'],
         // use custom cdn URL builder instead of Skypack.
         getCdnURL: (source, version, isDev) => {
-          return `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? ".min" : ""}.js`
+          return `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? '.min' : ''}.js`
         }
-      },
-    ],
-  ],
-};
+      }
+    ]
+  ]
+}
 ```
 
 > Note: we don't recommend using this plugin for mapping one package name to another.
@@ -61,13 +61,13 @@ Transforms this:
 
 ```js
 // Before
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react'
+import ReactDOM from "react-dom"
 
 ReactDOM.render(
   <h1>Hello world!</h1>,
-  document.getElementById("root")
-);
+  document.getElementById('root')
+)
 ```
 
 Into this, which can be run directly in the browser without web_modules deps.
