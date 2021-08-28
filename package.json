@@ -9,7 +9,7 @@
     "build:watch": "concurrently 'swc src -w --out-dir built --sync' 'tsc -w --pretty --skipLibCheck --declaration --emitDeclarationOnly'",
     "release": "standard-version",
     "lint": "eslint --ext .js,.ts src",
-    "publish": "yarn test && yarn build && npm publish --access=public"
+    "press": "yarn test && yarn build && npm publish --access=public"
   },
   "repository": {
     "type": "git",
