@@ -1,5 +1,6 @@
-const plugin = require('.')
-const esmImportRegex = require('./esmImportRegex.js')
+import plugin from './index'
+import esmImportRegex from './esmImportRegex'
+import { ITestExpectedOptions, TBuildCDNUrlFn } from './types'
 
 // A real package is required to be a dependency for this test to work. Using is-number.
 const isNumberVersion = require('is-number/package.json').version
@@ -14,7 +15,10 @@ const expected = ({
   isNumber = `https://cdn.skypack.dev/is-number@${isNumberVersion}${
     min ? '?min' : ''
   }`
-} = {}) => `
+}: ITestExpectedOptions = {
+  min: true,
+  isNumber: `https://cdn.skypack.dev/is-number@${isNumberVersion}?min`
+}) => `
 import isNumber from "${isNumber}"
 import React from "react"
 console.log(isNumber("5"))
@@ -118,11 +122,11 @@ test('runs in development mode with dev option set', async () => {
 })
 
 test('executes custom getCdnURL function properly', async () => {
-  const getCdnURL = (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? '.min' : ''}.js`
+  const getCdnURL: TBuildCDNUrlFn = (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? '.min' : ''}.js`
   const expectedCustom = ({
     min,
     isNumber = getCdnURL('is-number', isNumberVersion)
-  } = {}) => `
+  }: ITestExpectedOptions = {}) => `
 import isNumber from "${isNumber}"
 import React from "react"
 console.log(isNumber("5"))
@@ -130,7 +134,8 @@ console.log(isNumber("5"))
   const instance = plugin({}, { imports: { 'is-number': true }, getCdnURL })
   const result = await instance.transform({
     contents,
-    fileExt
+    fileExt,
+    isDev: false
   })
   expect(result).toEqual(expectedCustom())
 })
@@ -156,10 +161,15 @@ test('regex', () => {
     .filter(Boolean)
 
   for (const line of shouldPass) {
-    const match = esmImportRegex.exec(line)
+    const match = esmImportRegex.exec(line) ?? []
     esmImportRegex.lastIndex = 0
-    expect(match).toBeTruthy()
-    expect(['module-name', 'module-name/from/unexpected/path', 'module-name/from/unexpected/path.js', 'module-name.css']).toContain(match[2])
+    expect(match.length).toBeTruthy()
+    expect([
+      'module-name',
+      'module-name/from/unexpected/path',
+      'module-name/from/unexpected/path.js',
+      'module-name.css'
+    ]).toContain(match[2])
   }
 
   const shouldFail = `

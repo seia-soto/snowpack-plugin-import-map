@@ -5,7 +5,11 @@
   "main": "built/index.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint ./*.js"
+    "build": "rm -rf built && swc src --out-dir built --sync && tsc --pretty --skipLibCheck --declaration --emitDeclarationOnly",
+    "build:watch": "concurrently 'swc src -w --out-dir built --sync' 'tsc -w --pretty --skipLibCheck --declaration --emitDeclarationOnly'",
+    "release": "standard-version",
+    "lint": "eslint --ext .js,.ts src",
+    "publish": "yarn test && yarn build && npm publish --access=public"
   },
   "repository": {
     "type": "git",
@@ -13,7 +17,8 @@
   },
   "keywords": [
     "snowpack",
-    "snowpack-plugin"
+    "snowpack-plugin",
+    "cdn"
   ],
   "authors": [
     "zhoukekestar@163.com",
@@ -29,14 +34,30 @@
     "is-number": "^7.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.20.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-jest": "^24.1.3",
-    "eslint-plugin-node": "^11.0.0",
+    "@swc/cli": "^0.1.49",
+    "@swc/core": "^1.2.83",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^16.7.4",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "chokidar": "^3.5.2",
+    "concurrently": "^6.2.1",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^5.0.0",
-    "jest": "^27.0.5",
-    "standard": "^16.0.3"
+    "jest": "^27.1.0",
+    "snowpack": "^3.8.8",
+    "standard": "^16.0.3",
+    "standard-version": "^9.3.1",
+    "ts-jest": "^27.0.5",
+    "typescript": "4.3.5"
+  },
+  "peerDependencies": {
+    "snowpack": "^3.8.8"
   }
 }

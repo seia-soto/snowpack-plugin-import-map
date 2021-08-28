@@ -2,4 +2,4 @@
 // It only matches package imports, not relative or absolute imports.
 const esmImportRegex = /(import[\s(]*(?:(?:[\w{}[\]*]+(?:[\w,{}[\]* ]+)?)[\s]*from[\s]*)?["'])([@\w-]+(?:[/.]*[\w-./]+)?)(["'](?:[)])?)/gm
 
-module.exports = esmImportRegex
+export = esmImportRegex
