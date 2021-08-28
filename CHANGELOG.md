@@ -1,11 +1,19 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 1.2.0 (2021-08-28)
 
-## [Unreleased]
+
+### Features
+
+* move to typescript ([2d4491d](https://github.com/Seia-Soto/snowpack-plugin-import-map/commit/2d4491dfd78cf74327538cbec3d6b90f19a56c40))
+* move to yarn berry ([98fec16](https://github.com/Seia-Soto/snowpack-plugin-import-map/commit/98fec16cd1eeba15400de89cffdb81d44edf9648))
+
+
+### Bug Fixes
+
+* tsconfig error ([afb1912](https://github.com/Seia-Soto/snowpack-plugin-import-map/commit/afb19120fedff22dd9d7f73f96244d3f8d037a2e))
 
 ## [1.1.0] - 2020-10-09
 
