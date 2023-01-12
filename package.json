@@ -10,11 +10,11 @@
     "build:watch": "concurrently 'swc src -w --out-dir built --sync' 'tsc -w --pretty --skipLibCheck --declaration --emitDeclarationOnly'",
     "release": "standard-version",
     "lint": "eslint --ext .js,.ts src",
-    "press": "yarn test && yarn build && npm publish --access=public"
+    "press": "pnpm test && pnpm build && npm publish --access=public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Seia-Soto/snowpack-plugin-import-map.git"
+    "url": "git+https://github.com/seia-soto/snowpack-plugin-import-map.git"
   },
   "keywords": [
     "snowpack",
