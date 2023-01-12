@@ -2,13 +2,25 @@
 
 A snowpack plugin that maps your imports to Skypack or other sources.
 
-[![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
+## Maintainer Note
+
+This plugin won't add new feature as Snowpack deprecated.
+However, I'll keep this repo up to date for security and performance as a maintainer.
+
+For who finding modern frontend stack, please see Vite and rollup.
+
+### Changes after the note
+
+- We moved the module from CJS to ESM
+- We moved the testing library from Jest to Ava
+- We moved the package manager from Yarn to Pnpm
 
 ## Installation
 
 ```bash
 npm install --save-dev snowpack-plugin-import-map
 yarn add --dev snowpack-plugin-import-map
+pnpm add --dev snowpack-plugin-import-map
 ```
 
 ## Quick Start

@@ -1,147 +1,145 @@
-import plugin from './index'
-import esmImportRegex from './esmImportRegex'
-import { ITestExpectedOptions, TBuildCDNUrlFn } from './types'
-
-// A real package is required to be a dependency for this test to work. Using is-number.
-const isNumberVersion = require('is-number/package.json').version
+import test from 'ava';
+import esmImportRegex from './esmImportRegex.js';
+import plugin from './index.js';
+import {type BuildCdnUrlFunction, type SamplePackage} from './types.js';
+import isNumberPackageContent from 'is-number/package.json' assert { type: 'json' };
 
 const contents = `
 import isNumber from "is-number"
 import React from "react"
 console.log(isNumber("5"))
-`
-const expected = ({
-  min = true,
-  isNumber = `https://cdn.skypack.dev/is-number@${isNumberVersion}${
-    min ? '?min' : ''
-  }`
-}: ITestExpectedOptions = {
-  min: true,
-  isNumber: `https://cdn.skypack.dev/is-number@${isNumberVersion}?min`
-}) => `
+`;
+const fileExt = '.js';
+
+const expected = (shouldUseFollowingCdnUrl?: string, shouldUseMinimalVersion = true) => `
+import isNumber from "${shouldUseFollowingCdnUrl ?? `https://cdn.skypack.dev/is-number@${isNumberPackageContent.version}${shouldUseMinimalVersion ? '?min' : ''}`}"
+import React from "react"
+console.log(isNumber("5"))
+`;
+
+test('does nothing with empty config', async t => {
+	const instance = plugin({}, {});
+	const fileExt = '.js';
+	const result = instance.transform
+		? await instance.transform({contents, fileExt, isDev: false})
+		: contents;
+
+	t.is(result, contents);
+});
+
+test('does nothing when fileExt doesn\'t match', async t => {
+	const instance1 = plugin(
+		{},
+		{
+			imports: {
+				'is-number': 'https://cdn.skypack.dev/is-number',
+			},
+		},
+	);
+	const instance2 = plugin(
+		{},
+		{
+			imports: {
+				'is-number': 'https://cdn.skypack.dev/is-number',
+			},
+			extensions: ['.ts'],
+		},
+	);
+	const result1 = await instance1.transform({
+		contents,
+		fileExt: '.zz',
+		isDev: false,
+	});
+
+	t.is(result1, contents);
+
+	const result2 = await instance2.transform({
+		contents,
+		fileExt: '.js',
+		isDev: false,
+	});
+
+	t.is(result2, contents);
+});
+
+test('rewrites imports given in the \'imports\' plugin option', async t => {
+	const instance = plugin(
+		{},
+		{
+			imports: {
+				'is-number': 'https://cdn.skypack.dev/is-number',
+			},
+		},
+	);
+	const result = await instance.transform({
+		contents,
+		fileExt,
+		isDev: false,
+	});
+
+	t.is(result, expected('https://cdn.skypack.dev/is-number', false));
+});
+
+test('resolves \'imports\' plugin options set to true', async t => {
+	const instance = plugin({}, {imports: {'is-number': true}});
+	const result = await instance.transform({
+		contents,
+		fileExt,
+		isDev: false,
+	});
+
+	t.is(result, expected());
+});
+
+test('resolves \'imports\': { \'*\': true }', async t => {
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	const instance = plugin({}, {imports: {'*': true}});
+	const result = await instance.transform({
+		contents,
+		fileExt,
+		isDev: false,
+	});
+
+	t.is(result, expected());
+});
+
+test('runs in development mode with dev option set', async t => {
+	const instance1 = plugin({}, {dev: false, imports: {'is-number': true}});
+	const instance2 = plugin({}, {dev: true, imports: {'is-number': true}});
+	const result1 = await instance1.transform({
+		contents,
+		fileExt,
+		isDev: true,
+	});
+	const result2 = await instance2.transform({
+		contents,
+		fileExt,
+		isDev: true,
+	});
+
+	t.is(result1, contents);
+	t.is(result2, expected(undefined, false));
+});
+
+test('executes custom getCdnURL function properly', async t => {
+	const getCdnUrl: BuildCdnUrlFunction = (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? '.min' : ''}.js`;
+	const expectedCustom = (isNumber: string) => `
 import isNumber from "${isNumber}"
 import React from "react"
 console.log(isNumber("5"))
-`
-const fileExt = '.js'
+`;
+	const instance = plugin({}, {imports: {'is-number': true}, getCdnUrl});
+	const result = await instance.transform({
+		contents,
+		fileExt,
+		isDev: false,
+	});
 
-test('does nothing with empty config', async () => {
-  const instance = plugin({}, {})
-  const result = instance.transform
-    ? await instance.transform({ contents, fileExt, isDev: false })
-    : contents
-  expect(result).toEqual(contents)
-})
+	t.is(result, expectedCustom(getCdnUrl('is-number', isNumberPackageContent.version)));
+});
 
-test("does nothing when fileExt doesn't match", async () => {
-  const instance1 = plugin(
-    {},
-    {
-      imports: {
-        'is-number': 'https://cdn.skypack.dev/is-number'
-      }
-    }
-  )
-  const instance2 = plugin(
-    {},
-    {
-      imports: {
-        'is-number': 'https://cdn.skypack.dev/is-number'
-      },
-      extensions: ['.ts']
-    }
-  )
-  const result1 = await instance1.transform({
-    contents,
-    fileExt: '.zz',
-    isDev: false
-  })
-  expect(result1).toEqual(contents)
-  const result2 = await instance2.transform({
-    contents,
-    fileExt: '.js',
-    isDev: false
-  })
-  expect(result2).toEqual(contents)
-})
-
-test("rewrites imports given in the 'imports' plugin option", async () => {
-  const instance = plugin(
-    {},
-    {
-      imports: {
-        'is-number': 'https://cdn.skypack.dev/is-number'
-      }
-    }
-  )
-  const result = await instance.transform({
-    contents,
-    fileExt,
-    isDev: false
-  })
-  expect(result).toEqual(
-    expected({ isNumber: 'https://cdn.skypack.dev/is-number' })
-  )
-})
-
-test("resolves 'imports' plugin options set to true", async () => {
-  const instance = plugin({}, { imports: { 'is-number': true } })
-  const result = await instance.transform({
-    contents,
-    fileExt,
-    isDev: false
-  })
-  expect(result).toEqual(expected())
-})
-
-test("resolves 'imports': { '*': true }", async () => {
-  const instance = plugin({}, { imports: { '*': true } })
-  const result = await instance.transform({
-    contents,
-    fileExt,
-    isDev: false
-  })
-  expect(result).toEqual(expected())
-})
-
-test('runs in development mode with dev option set', async () => {
-  const instance1 = plugin({}, { dev: false, imports: { 'is-number': true } })
-  const instance2 = plugin({}, { dev: true, imports: { 'is-number': true } })
-  const result1 = await instance1.transform({
-    contents,
-    fileExt,
-    isDev: true
-  })
-  const result2 = await instance2.transform({
-    contents,
-    fileExt,
-    isDev: true
-  })
-  expect(result1).toEqual(contents)
-  expect(result2).toEqual(expected({ min: false }))
-})
-
-test('executes custom getCdnURL function properly', async () => {
-  const getCdnURL: TBuildCDNUrlFn = (source, version, isDev) => `https://cdnjs.cloudflare.com/ajax/libs/${source}/${version.replace(/[^\d.]/g, '')}/umd/${source}.production${isDev ? '.min' : ''}.js`
-  const expectedCustom = ({
-    min,
-    isNumber = getCdnURL('is-number', isNumberVersion)
-  }: ITestExpectedOptions = {}) => `
-import isNumber from "${isNumber}"
-import React from "react"
-console.log(isNumber("5"))
-`
-  const instance = plugin({}, { imports: { 'is-number': true }, getCdnURL })
-  const result = await instance.transform({
-    contents,
-    fileExt,
-    isDev: false
-  })
-  expect(result).toEqual(expectedCustom())
-})
-
-test('regex', () => {
-  const shouldPass = `
+test('regex', t => {
+	const shouldPass = `
     import defaultExport from "module-name"
     import * as name from "module-name"
     import { export1 } from "module-name"
@@ -156,23 +154,24 @@ test('regex', () => {
     import defaultExport from "module-name/from/unexpected/path.js"
     import "module-name.css"
   `
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean)
+		.split('\n')
+		.map(s => s.trim())
+		.filter(Boolean);
 
-  for (const line of shouldPass) {
-    const match = esmImportRegex.exec(line) ?? []
-    esmImportRegex.lastIndex = 0
-    expect(match.length).toBeTruthy()
-    expect([
-      'module-name',
-      'module-name/from/unexpected/path',
-      'module-name/from/unexpected/path.js',
-      'module-name.css'
-    ]).toContain(match[2])
-  }
+	for (const line of shouldPass) {
+		const match = esmImportRegex.exec(line) ?? [];
+		esmImportRegex.lastIndex = 0;
 
-  const shouldFail = `
+		t.truthy(match.length);
+		t.is(true, [
+			'module-name',
+			'module-name/from/unexpected/path',
+			'module-name/from/unexpected/path.js',
+			'module-name.css',
+		].includes(match[2]));
+	}
+
+	const shouldFail = `
     import
     import from "module-name"
     from "module-name"
@@ -189,13 +188,14 @@ test('regex', () => {
     var promise = import("./module-name")
     import ""
   `
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean)
+		.split('\n')
+		.map(s => s.trim())
+		.filter(Boolean);
 
-  for (const line of shouldFail) {
-    const match = esmImportRegex.exec(line)
-    esmImportRegex.lastIndex = 0
-    expect(match).toBeFalsy()
-  }
-})
+	for (const line of shouldFail) {
+		const match = esmImportRegex.exec(line);
+		esmImportRegex.lastIndex = 0;
+
+		t.falsy(match);
+	}
+});
