@@ -1,5 +1,8 @@
 # snowpack-plugin-import-map
 
+> The support of this plugin is stopped as Snowpack is no more maintained.
+> If you're willing to maintain this library, please contact me via seia@outlook.kr.
+
 A snowpack plugin that maps your imports to Skypack or other sources.
 
 ## Maintainer Note
